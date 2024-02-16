@@ -1,0 +1,44 @@
+# ask generic stuff
+F_SETUP(){
+    TYPE="$1"
+
+    export CSV="$CSVPATH/${TYPE}.csv"
+
+    clear
+    echo -e "\nNow several answers are required to setup $TYPE:\n"
+    
+    read -p "ALL DISK OPERATION TASKS are stopped (I do not verify ! so you could lie on your own risk ... ) ? [y|n] > " IOPROC
+    [ "x$IOPROC" != "xy" ] && echo -e "\n\tABORTED. Please stop all disk I/O related tasks first!\n" && exit
+    DETRAM=$(F_GETMEM)
+    read -p "Your amount of RAM in Megabyte (press ENTER to choose the detected RAM: $DETRAM MB)" RAM
+    [ -z "$RAM" ] && RAM=$DETRAM
+    read -p "The mountpoint/path you want to test > " STORAGE
+
+    if [ $TYPE == "bonnie++" ];then
+        read -p "How many test runs? (leave empty for default: $BONTESTRUNSDEF) > " TESTS
+        read -p "Number of files getting written (leave empty for default: '$BONFILESNODEF') > " NFILES
+        read -p "Number of directories (leave empty for default: '$BONDIRSNODEF') > " DIRS
+    elif [ $TYPE == "iozone" ];then
+        read -p "Which tests to run (leave empty for default: '$IOZTESTSDEF') > " TESTS
+        read -p "Record sizes (leave empty for default: '$IOZRSIZESDEF') > " RSIZES
+    fi
+
+    BSIZE=$(($RAM * 3))
+    [ "x$BATCH" == "x0" ]&&echo -e "\n\tCalculated file size is: $BSIZE MB ($RAM * 3 to trick cache)"
+    [ "x$BATCH" == "x0" ]&&echo -e "\tTake a cup of coffee - or two. This will take a while!!!\n\tBest practice is: Start 'iostat 1' and watching the 'tps' column while this is running..\n"
+    
+    # test write access before we start
+    if [ ! -d "$STORAGE" ];then
+        echo -e "\n\tABORTED! Path: >$STORAGE< does not exist!?\n"
+        exit 3
+    else
+        touch $STORAGE/${TYPE}.testfile >> /dev/null 2>&1
+        if [ $? -eq 0 ];then
+            echo -e "OK Storage exists and is writable to me."
+        else
+            echo -e "\nABORTED! Path: >$STORAGE< is not writable to me!\n"
+            exit 3
+        fi
+    fi
+
+}

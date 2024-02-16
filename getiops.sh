@@ -1,7 +1,7 @@
 #!/bin/bash
 ###########################################################################################
 #
-# Source:       https://github.com/secure-diversITy/getiops
+# Source:       https://github.com/secure-diversITy/get_iops
 # Copyright:    2015-2024 Thomas Fischer <mail |AT| sedi #DOT# one>
 # License:      CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
 #
@@ -17,20 +17,11 @@ VER=24.0
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
-VARFILE=libs/general
+VARFILE=libs/vars
 
 [ ! -f $VARFILE ] && echo "ERROR: missing variable file <$VARFILE>" && exit
 source $VARFILE
 
-# pre-check
-for bin in $(echo $REQBINS);do
-    if [ ! -x $bin ];then
-        echo -e "\n\tERROR: Cannot find $bin or it is not executable! ABORTED.\n"
-        exit 3
-    else
-        echo -e "\t.. $bin detected correctly"
-    fi
-done
 [ ! -d "$FUNCS" ]&& echo -e "\n\tERROR: cannot find $FUNCS path..." && exit
 
 for fc in $(ls $FUNCS);do
@@ -49,11 +40,11 @@ F_USAGE(){
     echo -e "\n\tSimply execute me to start interactive mode."
     echo -e "\tYou can also switch to batch mode but this will use predefined values then:"
     echo -e "\n\t$0 [a1|a2|a3|a4]\n\n\tWhere:\n"
-    echo -e "\t[a1] = bonnie++"
-    echo -e "\t[a2] = iozone"
-    echo -e "\t[a3] = fio"
-    echo -e "\t[a4] = ioping (I/O latency)"
-    echo -e "\n\t(a means automatic)\n\tIf you choose batch mode all output will be made in JSON format.\n"
+    echo -e "\t[a1|1] = bonnie++"
+    echo -e "\t[a2|2] = iozone"
+    echo -e "\t[a3|3] = fio"
+    echo -e "\t[a4|4] = ioping (I/O latency)"
+    echo -e "\n\t(aX means automatic)\n\tIf you choose batch mode all output will be made in JSON format.\n"
 }
 
 CHOICE="$1"
@@ -73,13 +64,28 @@ while [ -z $CHOICE ];do
     read -p "type in the digit from above: > " CHOICE
 done
 
+# pre-check
+case $CHOICE in
+    1) bin="$BONBIN" ;;
+    2) bin="$IZBIN" ;;
+    3|4) echo coming soon; exit ;;
+    *)echo -e "\nERROR: invalid choice >$CHOICE<\n"; F_USAGE; exit 4 ;;
+esac
+if [ ! -x $bin ];then
+    echo -e "\n\tERROR: Cannot find $bin or it is not executable! ABORTED.\n"
+    exit 3
+else
+    echo -e "\t.. $bin detected correctly"
+fi
+
 # do what the user want to do
 # the first argument when exec a function is always the batch mode.
 # 0 means interactive. 1 means batch mode.
 case $CHOICE in
     a1) # auto bonnie
-        [ -f "$BCSV" ]&& rm -vf "$BCSV" && echo "...deleted previous stats file $BCSV"
-        F_BONNIE 1 $BCSV
+        CSV="$CSVPATH/bonnie++.csv"
+        [ -f "$CSV" ]&& rm -vf "$CSV" && echo "...deleted previous stats file $CSV"
+        F_BONNIE 1
     ;;
     a2) # auto iozone
         F_IOZONE 1
@@ -91,7 +97,7 @@ case $CHOICE in
         F_IOPING 1
     ;;
     1) # bonnie
-        F_BONNIE 0 $BCSV
+        F_BONNIE 0
     ;;
     2) # iozone
         F_IOZONE 0
@@ -103,3 +109,5 @@ case $CHOICE in
         F_IOPING 0
     ;;
 esac
+
+echo -e "\n\n$TYPE finished! You can find the result CSV here: $CSV"

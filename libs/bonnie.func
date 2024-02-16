@@ -1,7 +1,6 @@
 # doing the bonnie stuff
 F_BONNIE(){
     BATCH=$1
-    CSV=$2
     if [ "x$BATCH" == "x0" ];then
         clear
         # bonnie++ disclaimer
@@ -10,18 +9,18 @@ F_BONNIE(){
         echo "  Most people use it to catch 'Random seeks' which is not the same as IOPS."
         echo
         echo "  The results of bonnie++ are an indicator only! This means the results are not hard"
-        echo "  facts! You can have 600 Random Seeks as a result and everything is working as expected"
+        echo "  facts! You can have 800 Random Seeks as a result and everything is working as expected"
         echo "  but you can also have 1500 Random Seeks and still having I/O problems!"
         echo
         echo "  Some words to the splunk>'ers:"
         echo "  The way bonnie++ is testing is not exactly the same way splunk> operates."
         echo "  For example sequential and random access is not measured with bonnie++ and"
-        echo "  there are dozens of hardware caches playing a role (e.g. raid controller, OS, ...)" 
+        echo "  there are dozens of caches playing a role (e.g. raid controller, OS, ...)" 
         echo
         echo "  .. anyways using bonnie++ will get you a feeling about your storage setup."
         echo "  Just keep that in mind when using bonnie++ and/or this helper script."
         echo
-        echo "  When you have less than 800 Random Seeks:"
+        echo "  When you have less than 1000 Random Seeks:"
         echo "  - don't panic that just means you need to do more tests"
         echo "  - you can always take a look on the bonnie++ options to change its behaviour"
         echo "  - restart this script and try another IOPS tester"
@@ -33,46 +32,19 @@ F_BONNIE(){
         if [ "$ANSW" != "y" ];then
             echo "aborted as requested."
             exit
-        fi
-        
-        clear
-        echo -e "\nNow several answers are required to set bonnie up:\n"
-        
-        read -p "ALL DISK OPERATION TASKS are stopped (I do not verify ! so you could lie on your own risk ... ) ? [y|n] > " SPLPROC
-        [ "x$SPLPROC" != "xy" ] && echo -e "\n\tABORTED. Please stop splunk first!\n" && exit
-        DETRAM=$(F_GETMEM)
-        read -p "Your amount of RAM in Megabyte (press ENTER to choose the detected RAM: $DETRAM MB)" RAM
-        [ -z "$RAM" ] && RAM=$DETRAM
-        read -p "The mountpoint / storage you want to test > " STORAGE
-        read -p "How many tests? (leave empty for default: 5) > " TESTS
-        read -p "Number of files getting written (leave empty for default: 100) > " NFILES
-        read -p "Number of directories (leave empty for default: 100) > " DIRS
-    else
+        fi        
+   else
         # doing it fully automatic...
         echo "coming soon.."
         exit 3
     fi
 
-    BSIZE=$(($RAM * 3))
-    [ "x$BATCH" == "x0" ]&&echo -e "\n\tCalculated file size is: $BSIZE MB ($RAM * 3 to trick cache)"
-    [ "x$BATCH" == "x0" ]&&echo -e "\tTake a cup of coffee - or two. This will take a while!!!\n\tBest practice is: Start 'iostat 1' and watching the 'tps' column while this is running..\n"
-    [ -z "$TESTS" ]&& TESTS="5"
-    [ -z "$NFILES" ]&& NFILES="100"
-    [ -z "$DIRS" ]&& DIRS="100"
-    
-    # test write access before we start
-    if [ ! -d "$STORAGE" ];then
-        echo -e "\n\tABORTED! $STORAGE seems to not exist!?\n"
-        exit 3
-    else
-        > $STORAGE/bonnie.testfile
-        if [ $? -eq 0 ];then
-            echo -e "\tOK Storage exists and is writable to me."
-        else
-            echo -e "\n\tABORTED! $STORAGE is not writable to me!\n"
-            exit 3
-        fi
-    fi
+    F_SETUP bonnie++
+
+    # set defaults if required
+    [ -z "$TESTS" ]&& TESTS="$BONTESTRUNSDEF"
+    [ -z "$NFILES" ]&& NFILES="$BONFILESNODEF"
+    [ -z "$DIRS" ]&& DIRS="$BONDIRSNODEF"
 
     # check if we would have enough free inodes first:
     FREEIN=$(df --output=iavail "$STORAGE" |grep -Eo "[[:digit:]]+")
@@ -97,7 +69,16 @@ F_BONNIE(){
             exit 3
         fi
     fi
-            
+
+    echo -e "\nstarting with:"
+    echo -e "\tstorage: $STORAGE"
+    echo -e "\tfile size: ${BSIZE}m"
+    echo -e "\ttests: $TESTS"
+    echo -e "\tnfiles: $NFILES"
+    echo -e "\tdirs: $DIRS"
+    echo -e "\tbsize: $BSIZE"
+    echo -e "\tresult: $CSV"
+          
     # finally doing the magic
     # -n "number:max:min:num-directories:chunk-size":
     # max is the maximum size and min is the minimum size (both default to 0 if not specified). If minimum and maximum  sizes  are  specified
