@@ -21,6 +21,8 @@ F_SETUP(){
     elif [ $TYPE == "iozone" ];then
         read -p "Which tests to run (leave empty for default: '$IOZTESTSDEF') > " TESTS
         read -p "Record sizes (leave empty for default: '$IOZRSIZESDEF') > " RSIZES
+        echo -e "\nDetected CPU count: $(F_GETCPUS)"
+        read -p "How many CPUs do you want to use (leave empty for default: '$IOZCPUCNTDEF') > " CPUCOUNT
     fi
 
     BSIZE=$(($RAM * 3))

@@ -1,0 +1,28 @@
+# calculate available RAM
+F_GETMEM(){
+    # detect RAM and verify if valid
+    MEMMB=$(grep -i MemTotal /proc/meminfo | grep -Eo '[[:digit:]]+')
+    if [ "$MEMMB" -lt 1 ];then
+        echo "ERROR: CANNOT READ RAM INFO!" 
+        MEMMB=unknown
+    else
+        MEMMB=$((MEMMB / 1024))
+    fi
+    echo $MEMMB
+}
+
+# calculate available CPUs
+F_GETCPUS(){
+    unset _MAX_THREADS
+    DEFAULT_COUNT=1
+    which nproc > /dev/null 2>&1
+    if [ $? -eq 0 ];then
+	_MAX_THREADS=$(nproc --all)
+    fi
+    if [ -z "$_MAX_THREADS" ];then
+	echo $DEFAULT_COUNT
+	return 9
+    else
+	echo $_MAX_THREADS
+    fi
+}

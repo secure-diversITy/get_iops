@@ -3,5 +3,30 @@ F_IOZONE(){
     # iozone is mentioned at:
     # http://docs.splunk.com/Documentation/PCI/2.1.1/Install/Troubleshooting#Measuring_system_performance
     # cmd: iozone -s 4g -r 2k -r 4k -r 8k -r 16k -r 32k -O -b results.xls
-    echo iozon
+
+    F_SETUP iozone
+
+    # set defaults if required
+    [ -z "$RSIZES" ]&& RSIZES="$IOZRSIZESDEF"
+    [ -z "$TESTS" ]&& TESTS="$IOZTESTSDEF"
+    [ -z "$CPUCOUNT" ] && CPUCOUNT="$IOZCPUCNTDEF"
+
+    echo -e "\nstarting with:" 
+    echo -e "\tstorage: $STORAGE"
+    echo -e "\tfile size: ${BSIZE}m"
+    echo -e "\trecord sizes: ${RSIZES}"
+    echo -e "\ttests: $TESTS"
+    echo -e "\tresult: $CSV"
+
+    # -I try to bypass caches (not available on all platforms)
+    # -K Inject some random accesses in the testing
+    # -i tests to run
+    # -f path to test
+    # -s file size
+    # -r record sizes
+    IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
+    IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
+    IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
+    #iozone -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV
+    iozone -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls && echo -e "\nXLS written to: ${CSV}.xls"
 }

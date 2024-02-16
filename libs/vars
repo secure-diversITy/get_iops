@@ -13,22 +13,11 @@ BONFILESNODEF=100               # number of files
 BONDIRSNODEF=100                # number of directories
 
 # defaults - iozone
+IOZCPUCNTDEF=1                   # CPU count to be used for throughput tests
 IOZRSIZESDEF="2k 8k 32k 128k 5m" # record sizes
 IOZTESTSDEF="0 1 2 3 4 5 6 7 8 9 10 11 12" # tests to run:
                                            # 0=write/rewrite, 1=read/re-read, 2=random-read/write, 3=Read-backwards, 4=Re-write-rec
                                            # ord, 5=stride-read, 6=fwrite/re-fwrite, 7=fread/Re-fread, 8=mixed workload, 9=pwrite/Re-
                                            # pwrite,  10=pread/Re-pread,  11=pwritev/Re-pwritev,  12=preadv/Re-preadv
 
-### general functions
 
-F_GETMEM(){
-    # detect RAM and verify if valid
-    MEMMB=$(grep -i MemTotal /proc/meminfo | grep -Eo '[[:digit:]]+')
-    if [ "$MEMMB" -lt 1 ];then
-        echo "ERROR: CANNOT READ RAM INFO!" 
-        MEMMB=unknown
-    else
-        MEMMB=$((MEMMB / 1024))
-    fi
-    echo $MEMMB
-}
