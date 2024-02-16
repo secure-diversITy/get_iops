@@ -75,7 +75,7 @@ F_BONNIE(){
     fi
 
     # check if we would have enough free inodes first:
-    FREEIN=$(df --output=iavail "$STORAGE" |egrep -o "[[:digit:]]+")
+    FREEIN=$(df --output=iavail "$STORAGE" |grep -Eo "[[:digit:]]+")
     if [ -z "$FREEIN" ];then
         echo -e "\n\tABORTED! Cannot determine free inodes ($FREEIN)!\n"
         exit 3

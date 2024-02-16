@@ -25,7 +25,7 @@ source $VARFILE
 # pre-check
 for bin in $(echo $REQBINS);do
     if [ ! -x $bin ];then
-        echo -e "\n\tERROR: Cannot find $bin or it is not executable!ABORTED.\n"
+        echo -e "\n\tERROR: Cannot find $bin or it is not executable! ABORTED.\n"
         exit 3
     else
         echo -e "\t.. $bin detected correctly"
