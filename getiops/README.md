@@ -1,15 +1,16 @@
-# getiops 
+# get IOPS ([I]nput/Output [O]perations [P]er [S]econd)
 
 ## Description
 
-This helper will guide you through the jungle of IOPS testing for splunk>.
-It supports several linux tools and comes with a predefined set of best practice values.
+This helper will guide you through the jungle of IOPS testing. 
+
+It was created to identify issues within environments which are very I/O intensive (e.g. splunk>) and makes use of well known linux testing tools and their best practices.
 
 ## Currently supported
 
 - bonnie++
 
-## Supported in the near future
+## Planned / in progress
 
 - fio
 - iozone
@@ -18,10 +19,3 @@ It supports several linux tools and comes with a predefined set of best practice
 ## Installation
 
 TBD
-
-## Roadmap
-
-1) creating a package containing above tools
-2) Maybe: creating splunk dashboard to display the results
-
-

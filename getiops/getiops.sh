@@ -1,8 +1,8 @@
 #!/bin/bash
 ###########################################################################################
 #
-# Author:       Thomas Fischer <mail | se-di | de>, https://github.com/secure-diversITy/splunk
-# Created:      2015-08-14
+# Source:       https://github.com/secure-diversITy/getiops
+# Copyright:    2015-2024 Thomas Fischer <mail |AT| sedi #DOT# one>
 # License:      CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
 #
 # Desc:         Stress your storage setup to find out IOPS
@@ -13,7 +13,7 @@
 #
 #########################################################################################
 #
-# Last changed: 2017-10-16
+VER=24.0
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
@@ -44,7 +44,8 @@ for fc in $(ls $FUNCS);do
 done
 
 F_USAGE(){
-    echo -e "\nBrought to you by Thomas Fischer <mail | se-di | de>\n"
+    echo -e "\nVersion: $VER\n"
+    echo -e "\nBrought to you by secure diversITy (www.sicherevielfalt.de)\n"
     echo -e "\n\tSimply execute me to start interactive mode."
     echo -e "\tYou can also switch to batch mode but this will use predefined values then:"
     echo -e "\n\t$0 [a1|a2|a3|a4]\n\n\tWhere:\n"
@@ -67,7 +68,7 @@ while [ -z $CHOICE ];do
     echo -e "\t[1] = bonnie++"
     echo -e "\t[2] = iozone"
     echo -e "\t[3] = fio"
-    echo -e "\t[4] = ioping (I/O latency)"
+    echo -e "\t[4] = ioping (I/O latency only)"
     echo
     read -p "type in the digit from above: > " CHOICE
 done
