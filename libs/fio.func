@@ -1,4 +1,28 @@
 #doing the fio stuff
 F_FIO(){
-    echo "fio is coming soon.."
+
+    F_SETUP fio
+
+    # set defaults if required
+    [ -z "$BLKSIZE" ] && BLKSIZE="$FIOBLKSIZEDEF"
+    [ -z "$CPUCOUNT" ] && CPUCOUNT="$FIOJOBCNTDEF"
+    [ "$CPUCOUNT" == "auto" ] && CPUCOUNT="$DETCPUCOUNT"
+
+    echo -e "\nstarting with:"
+    echo -e "\tstorage: $STORAGE"
+    echo -e "\tfile size: ${BSIZE}m"
+    echo -e "\tblock size: $BLKSIZE"
+    echo -e "\tnumber of jobs: $CPUCOUNT"
+    echo -e "\tresult: $CSV"
+
+    # an unusual block size might be revealed by (PHY-SEC + LOG-SEC):
+    # lsblk -o NAME,PHY-SEC,LOG-SEC,SIZE,RO,TYPE,MOUNTPOINTS
+    # xfs_info /mountpoint
+    #
+    # rwmixread: Percentage of a mixed workload that should be read
+    # rwmixwrite: Percentage of a mixed workload that should be written 
+    fio --filename=${STORAGE}/${TYPE}.test --blocksize=$BLKSIZE --name=randrw --ioengine=libaio --iodepth=20 --rw=randrw --rwmixread=75 --rwmixwrite=25 --direct=1 --size=${BSIZE}M --numjobs=$CPUCOUNT --group_reporting --output $CSV
+
+    echo -e "\n\nSummary:"
+    grep IOPS $CSV 
 }

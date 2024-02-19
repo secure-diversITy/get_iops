@@ -5,24 +5,30 @@ F_SETUP(){
     export CSV="$CSVPATH/${TYPE}.csv"
 
     clear
-    echo -e "\nNow several answers are required to setup $TYPE:\n"
+    echo -e "\nSetting up $TYPE:\n"
     
-    read -p "ALL DISK OPERATION TASKS are stopped (I do not verify ! so you could lie on your own risk ... ) ? [y|n] > " IOPROC
+    [ -z "$IOPROC" ] && read -p "ALL DISK OPERATION TASKS are stopped (I do not verify ! so you could lie on your own risk ... ) ? [y|n] > " IOPROC
     [ "x$IOPROC" != "xy" ] && echo -e "\n\tABORTED. Please stop all disk I/O related tasks first!\n" && exit
     DETRAM=$(F_GETMEM)
-    read -p "Your amount of RAM in Megabyte (press ENTER to choose the detected RAM: $DETRAM MB)" RAM
-    [ -z "$RAM" ] && RAM=$DETRAM
-    read -p "The mountpoint/path you want to test > " STORAGE
+    [ -z "$RAM" ] && read -p "Your amount of RAM in Megabyte (press ENTER to choose the detected RAM: $DETRAM MB)" RAM
+    [ -z "$RAM" -o "$RAM" == "auto" ] && RAM=$DETRAM
+    [ -z "$STORAGE" ] && read -p "The mountpoint/path you want to test > " STORAGE
 
     if [ $TYPE == "bonnie++" ];then
-        read -p "How many test runs? (leave empty for default: $BONTESTRUNSDEF) > " TESTS
-        read -p "Number of files getting written (leave empty for default: '$BONFILESNODEF') > " NFILES
-        read -p "Number of directories (leave empty for default: '$BONDIRSNODEF') > " DIRS
+        [ -z "$TESTS" ] && read -p "How many test runs? (leave empty for default: $BONTESTRUNSDEF) > " TESTS
+        [ -z "$NFILES" ] && read -p "Number of files getting written (leave empty for default: '$BONFILESNODEF') > " NFILES
+        [ -z "$NDIRS" ] && read -p "Number of directories (leave empty for default: '$BONDIRSNODEF') > " NDIRS
     elif [ $TYPE == "iozone" ];then
-        read -p "Which tests to run (leave empty for default: '$IOZTESTSDEF') > " TESTS
-        read -p "Record sizes (leave empty for default: '$IOZRSIZESDEF') > " RSIZES
-        echo -e "\nDetected CPU count: $(F_GETCPUS)"
-        read -p "How many CPUs do you want to use (leave empty for default: '$IOZCPUCNTDEF') > " CPUCOUNT
+        [ -z "$TESTS" ] && read -p "Which tests to run (leave empty for default: '$IOZTESTSDEF') > " TESTS
+        [ -z "$RSIZES" ] && read -p "Record sizes (leave empty for default: '$IOZRSIZESDEF') > " RSIZES
+        DETCPUCOUNT=$(F_GETCPUS)
+        echo -e "\nDetected CPU count: $DETCPUCOUNT"
+        [ -z "$CPUCOUNT" ] && read -p "How many CPUs do you want to use (leave empty for default: '$IOZCPUCNTDEF') > " CPUCOUNT
+    elif [ $TYPE == "fio" ];then
+        [ -z "$BLKSIZE" ] && read -p "Block size (leave empty for default: '$FIOBLKSIZEDEF') > " BLKSIZE
+        DETCPUCOUNT=$(F_GETCPUS)
+        echo -e "\nDetected CPU count: $DETCPUCOUNT"
+        [ -z "$CPUCOUNT" ] && read -p "How many Jobs do you want to use (leave empty for default: '$FIOJOBCNTDEF') > " CPUCOUNT
     fi
 
     BSIZE=$(($RAM * 3))

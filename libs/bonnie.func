@@ -1,6 +1,7 @@
 # doing the bonnie stuff
 F_BONNIE(){
     BATCH=$1
+    [ "$SKIPWARN" == "y" ] && BATCH=1
     if [ "x$BATCH" == "x0" ];then
         clear
         # bonnie++ disclaimer
@@ -33,18 +34,14 @@ F_BONNIE(){
             echo "aborted as requested."
             exit
         fi        
-   else
-        # doing it fully automatic...
-        echo "coming soon.."
-        exit 3
     fi
 
     F_SETUP bonnie++
 
     # set defaults if required
-    [ -z "$TESTS" ]&& TESTS="$BONTESTRUNSDEF"
-    [ -z "$NFILES" ]&& NFILES="$BONFILESNODEF"
-    [ -z "$DIRS" ]&& DIRS="$BONDIRSNODEF"
+    [ -z "$TESTS" -o "$TESTS" == "default" ]&& TESTS="$BONTESTRUNSDEF"
+    [ -z "$NFILES" -o "$NFILES" == "default" ]&& NFILES="$BONFILESNODEF"
+    [ -z "$NDIRS" -o "$NDIRS" == "default" ]&& NDIRS="$BONDIRSNODEF"
 
     # check if we would have enough free inodes first:
     FREEIN=$(df --output=iavail "$STORAGE" |grep -Eo "[[:digit:]]+")
@@ -75,15 +72,20 @@ F_BONNIE(){
     echo -e "\tfile size: ${BSIZE}m"
     echo -e "\ttests: $TESTS"
     echo -e "\tnfiles: $NFILES"
-    echo -e "\tdirs: $DIRS"
+    echo -e "\tndirs: $NDIRS"
     echo -e "\tbsize: $BSIZE"
     echo -e "\tresult: $CSV"
           
-    # finally doing the magic
+    # -b no buffering
     # -n "number:max:min:num-directories:chunk-size":
     # max is the maximum size and min is the minimum size (both default to 0 if not specified). If minimum and maximum  sizes  are  specified
     # then  every  file  will  have a random size from the range min..max inclusive.  If you specify a number of directories then the files will be
     # evenly distributed amoung that many sub-directories
-    $BONBIN -x $TESTS -d $STORAGE -s ${BSIZE}m -r ${RAM}m -b -n ${NFILES}:${BSIZE}:8:${DIRS} >> $CSV
+    [ -f "$CSV" ] && rm $CSV
+    $BONBIN -x $TESTS -d $STORAGE -s ${BSIZE}m -r ${RAM}m -b -n ${NFILES}:${BSIZE}:8:${NDIRS} >> $CSV
+
+    echo -e "\n\nSummary (Random Seeks is what you are interested in):\n"
+    cat $CSV | bon_csv2txt
+    cat $CSV | bon_csv2html > ${CSV}.htm && echo -e "\nThe above has been saved also in human readable HTML here: ${CSV}.htm"
 }
 

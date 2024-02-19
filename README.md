@@ -11,11 +11,11 @@ It was created to identify issues within environments which are very I/O intensi
 ## Currently supported
 
 - bonnie++
+- fio
+- iozone
 
 ## Planned / in progress
 
-- fio
-- iozone
 - ioping (latency)
 
 ## Installation

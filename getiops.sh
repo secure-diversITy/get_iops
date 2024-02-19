@@ -13,11 +13,12 @@
 #
 #########################################################################################
 #
-VER=24.0
+VER=24.1
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
 VARFILE=libs/vars
+DEBUG=0
 
 [ ! -f $VARFILE ] && echo "ERROR: missing variable file <$VARFILE>" && exit
 source $VARFILE
@@ -30,27 +31,72 @@ for fc in $(ls $FUNCS);do
         echo -e "\tERROR: $FUNCS/$fc cannot be included! Aborted.."
         exit 3
     else
-        echo -e "\t... $fc included"
+        [ $DEBUG -eq 1 ] && echo -e "\t... $fc included"
     fi
 done
 
 F_USAGE(){
-    echo -e "\nVersion: $VER\n"
-    echo -e "\nBrought to you by secure diversITy (www.sicherevielfalt.de)\n"
-    echo -e "\n\tSimply execute me to start interactive mode."
-    echo -e "\tYou can also switch to batch mode but this will use predefined values then:"
-    echo -e "\n\t$0 [a1|a2|a3|a4]\n\n\tWhere:\n"
-    echo -e "\t[a1|1] = bonnie++"
-    echo -e "\t[a2|2] = iozone"
-    echo -e "\t[a3|3] = fio"
-    echo -e "\t[a4|4] = ioping (I/O latency)"
-    echo -e "\n\t(aX means automatic)\n\tIf you choose batch mode all output will be made in JSON format.\n"
+
+cat << _EOHELP
+
+Version: $VER
+A simple helper to guide you through the jungle of IOPS testing.
+Brought to you by secure diversITy (www.sicherevielfalt.de)
+
+Simply execute ./getiops.sh to start the interactive mode.
+
+The following CLI parameters exist which will skip interactive questions:
+    
+    general:
+	-t | --type [1|2|3|4]		sets the type (1 = bonnie++, 2 = iozone, 3 = fio, 4 = ioping (I/O latency))
+	-b | --batch		        will run in batch mode (avoid any questions - Note: WIP)
+	--nodiskop			skip warning about to stop disk operations
+	--useram [X|auto]	        define a specific amount of RAM in MB (for cache calculations)
+	--size [X]		        define test file size in MB (will be multiplied with 3)
+	--path [path/mountpoint]	set the path to the storage you want to test
+	--tests [X|default]		set the tests to run (type specific)
+
+    bonnie++ only:
+	--nowarn			skip warning about usage
+        --nfiles [X]                    number of files to write
+        --ndirs [X]                      number of directories to write
+
+    fio only:
+	--blocksize [X]		        define a non-default block size
+        --cores [X|auto]                set the amount of cores
+
+    iozone only:
+	--rsizes [X|default]	        the record sizes to use
+	--cores [X|auto]		set the amount of cores to use for throughput mode
+
+interactive mode can be mixed with those parameters, i.e. if you do not specify all
+possible parameters for a type you will be prompted
+
+_EOHELP
+
 }
 
-CHOICE="$1"
-if [ "$CHOICE" == "-h" ]||[ "$CHOICE" == "--help" ];then F_USAGE; exit;fi
+# check/set args
+while [ ! -z "$1" ]; do
+    case "$1" in
+        -h|--help|help) F_USAGE; exit;;
+        -t|--type) CHOICE=$2; shift 2;;
+        -a|--batch) BATCH=1; shift ;;
+        --nowarn) export SKIPWARN=y; shift ;;
+        --nodiskop) export IOPROC=y; shift ;;
+        --useram|--size) export RAM="$2"; shift 2;;
+        --path) export STORAGE="$2"; shift 2;;
+        --tests) export TESTS="$2"; shift 2;;
+        --rsizes) export RSIZES="$2"; shift 2;;
+        --blocksize) export BLKSIZE="$2"; shift 2;;
+        --cores|--jobs) export CPUCOUNT="$2"; shift 2;;
+        --nfiles) export NFILES="$2"; shift 2;;
+        --ndirs) export NDIRS="$2"; shift 2;;
+        *) echo "unknown arg: $1"; F_USAGE; exit 4;;
+    esac
+done
 
-while [ -z $CHOICE ];do
+while [ -z "$CHOICE" ];do
     # users choice
     echo -e "\n\tWelcome and tighten your seat belts. We are about to stress your storage setup!"
     echo -e "\tThere are several tools out there which can measure things. The question is which of those"
@@ -64,11 +110,12 @@ while [ -z $CHOICE ];do
     read -p "type in the digit from above: > " CHOICE
 done
 
-# pre-check
+# pre-check binaries
 case $CHOICE in
     1) bin="$BONBIN" ;;
     2) bin="$IZBIN" ;;
-    3|4) echo coming soon; exit ;;
+    3) bin="$FIOBIN";;
+    4) echo coming soon; exit ;;
     *)echo -e "\nERROR: invalid choice >$CHOICE<\n"; F_USAGE; exit 4 ;;
 esac
 if [ ! -x $bin ];then
@@ -86,15 +133,6 @@ case $CHOICE in
         CSV="$CSVPATH/bonnie++.csv"
         [ -f "$CSV" ]&& rm -vf "$CSV" && echo "...deleted previous stats file $CSV"
         F_BONNIE 1
-    ;;
-    a2) # auto iozone
-        F_IOZONE 1
-    ;;
-    a3) # auto fio
-        F_FIO 1
-    ;;
-    a4) # auto ioping
-        F_IOPING 1
     ;;
     1) # bonnie
         F_BONNIE 0
