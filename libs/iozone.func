@@ -30,9 +30,9 @@ F_IOZONE(){
     # -f path to test
     # -s file size
     # -r record sizes
-    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV 2>&1 | tee -a $CSVPATH/${TYPE}.out
+    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV 2>&1 | $BINARGS tee -a $CSVPATH/${TYPE}.out
     clear
-    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls 2>&1 | tee -a $CSVPATH/${TYPE}.out
+    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls 2>&1 | $BINARGS tee -a $CSVPATH/${TYPE}.out
     clear
     echo -e "\n\nSummary (full output in $CSVPATH/${TYPE}.out):\n"
     grep "Output is in ops/sec" -A25 $CSVPATH/${TYPE}.out
