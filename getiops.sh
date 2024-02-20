@@ -13,7 +13,7 @@
 #
 #########################################################################################
 #
-VER=24.1
+VER=24.2
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
@@ -41,15 +41,19 @@ cat << _EOHELP
 
 Version: $VER
 A simple helper to guide you through the jungle of IOPS testing.
-Brought to you by secure diversITy (www.sicherevielfalt.de)
+Although this is provided without warranty of any kind (and you use it at your own risk), it was created in the hope of being useful.
+Brought to you by secure diversITy (www.sicherevielfalt.de).
 
 Simply execute ./getiops.sh to start the interactive mode.
 
 The following CLI parameters exist which will skip interactive questions:
     
     general:
+        -u | --user [username]          starting get_iops.sh as root requires a local user to actually run the tests
+                                        ensure that this user has read+write access at your test path
+                                        if you specify "root" as username it will proceed (on your own risk, of course)
 	-t | --type [1|2|3|4]		sets the type (1 = bonnie++, 2 = iozone, 3 = fio, 4 = ioping (I/O latency))
-	-b | --batch		        will run in batch mode (avoid any questions - Note: WIP)
+	-b | --batch		        will run in batch mode (avoid any output - Note: WIP)
 	--nodiskop			skip warning about to stop disk operations
 	--useram [X|auto]	        define a specific amount of RAM in MB (for cache calculations)
 	--size [X]		        define test file size in MB (will be multiplied with 3)
@@ -81,6 +85,7 @@ while [ ! -z "$1" ]; do
     case "$1" in
         -h|--help|help) F_USAGE; exit;;
         -t|--type) CHOICE=$2; shift 2;;
+        -u|--user) RUNUSER=$2; shift 2;;
         -a|--batch) BATCH=1; shift ;;
         --nowarn) export SKIPWARN=y; shift ;;
         --nodiskop) export IOPROC=y; shift ;;
@@ -96,6 +101,20 @@ while [ ! -z "$1" ]; do
     esac
 done
 
+# check if we are root
+if [ "$(id -u)" == 0 -a -z "$RUNUSER" ];then
+    echo -e "\nERROR: You are running $0 as root but do not have specified a local user (-u|--user)"
+    echo -e "If you really want to run as root specify -u root (not recommended)."
+    echo -e "Software can have bugs and even though an unprivileged user can damage data,"
+    echo -e "running as root can take serious damage to the whole system!\n"
+    exit 4
+fi
+
+# setup run user
+[ -z "$RUNUSER" ] && export RUNUSER="$(id -un)"
+export BINARGS="sudo -u $RUNUSER"
+
+# starting interactive mode
 while [ -z "$CHOICE" ];do
     # users choice
     echo -e "\n\tWelcome and tighten your seat belts. We are about to stress your storage setup!"
@@ -129,12 +148,7 @@ fi
 # the first argument when exec a function is always the batch mode.
 # 0 means interactive. 1 means batch mode.
 case $CHOICE in
-    a1) # auto bonnie
-        CSV="$CSVPATH/bonnie++.csv"
-        [ -f "$CSV" ]&& rm -vf "$CSV" && echo "...deleted previous stats file $CSV"
-        F_BONNIE 1
-    ;;
-    1) # bonnie
+    1) # bonnie++
         F_BONNIE 0
     ;;
     2) # iozone

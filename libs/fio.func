@@ -21,7 +21,7 @@ F_FIO(){
     #
     # rwmixread: Percentage of a mixed workload that should be read
     # rwmixwrite: Percentage of a mixed workload that should be written 
-    fio --filename=${STORAGE}/${TYPE}.test --blocksize=$BLKSIZE --name=randrw --ioengine=libaio --iodepth=20 --rw=randrw --rwmixread=75 --rwmixwrite=25 --direct=1 --size=${BSIZE}M --numjobs=$CPUCOUNT --group_reporting --output $CSV
+    $BINARGS $FIOBIN --filename=${STORAGE}/${TYPE}.test --blocksize=$BLKSIZE --name=randrw --ioengine=libaio --iodepth=20 --rw=randrw --rwmixread=75 --rwmixwrite=25 --direct=1 --size=${BSIZE}M --numjobs=$CPUCOUNT --group_reporting --output $CSV
 
     echo -e "\n\nSummary:"
     grep IOPS $CSV 

@@ -28,8 +28,8 @@ F_IOZONE(){
     IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
     IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
     IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
-    iozone -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV > $CSVPATH/${TYPE}.out 2>&1
-    iozone -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls >> $CSVPATH/${TYPE}.out 2>&1 && echo -e "\nXLS written to: ${CSV}.xls"
+    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV > $CSVPATH/${TYPE}.out 2>&1
+    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls >> $CSVPATH/${TYPE}.out 2>&1 && echo -e "\nXLS written to: ${CSV}.xls"
     echo -e "\n\nSummary (full output in $CSVPATH/${TYPE}.out):"
     grep "Output is in ops/sec" -A25 $CSVPATH/${TYPE}.out 
 }
