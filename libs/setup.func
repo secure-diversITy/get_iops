@@ -3,7 +3,12 @@ F_SETUP(){
     TYPE="$1"
     export RUNID=$(date +%Y%m%d-%H%M%S)
     export CSV="$RESULTPATH/${TYPE}_${RUNID}.csv"
+    LOG=$RESULTPATH/${TYPE}.log
+    OUT="$RESULTPATH/${TYPE}_${RUNID}.out"
 
+    F_LOG "#-------------------------------------------------------------------"
+    F_LOG "Started $0 ($VER) with these parameters: $0 $TOOLARGS"
+    F_LOG "Setting up >$TYPE< with id >$RUNID<"
     clear
     echo -e "\nSetting up $TYPE:\n"
     
@@ -33,29 +38,28 @@ F_SETUP(){
 
     BSIZE=$(($RAM * 3))
     [ "x$BATCH" == "x0" ]&&echo -e "\n\tCalculated file size is: $BSIZE MB ($RAM * 3 to trick cache)"
-    [ "x$BATCH" == "x0" ]&&echo -e "\tTake a cup of coffee - or two. This will take a while!!!\n\tBest practice is: Start 'iostat 1' and watching the 'tps' column while this is running..\n"
+    [ "x$BATCH" == "x0" ]&&echo -e "\tTake a cup of coffee - or two. This will take a while!!!\n\n"
     
     # test write access before we start
     if [ ! -d "$STORAGE" ];then
-        echo -e "\n\tABORTED! Path: >$STORAGE< does not exist!?\n"
+        echo -e "\n\tABORTED! Path: >$STORAGE< does not exist!?\n" | tee -a $LOG
         exit 3
     else
         sudo -u $RUNUSER touch $STORAGE/${TYPE}.testfile >> /dev/null 2>&1
         if [ $? -eq 0 ];then
-            echo -e "OK: storage exists and is writable to me."
+            echo -e "OK: storage exists and is writable to me." | tee -a $LOG
             $BINARGS rm $STORAGE/${TYPE}.testfile
         else
-            echo -e "\nABORTED! Path: >$STORAGE< is not writable for user: >${RUNUSER}<!\n"
+            echo -e "\nABORTED! Path: >$STORAGE< is not writable for user: >${RUNUSER}<!\n" | tee -a $LOG
             exit 3
         fi
         $BINARGS touch $CSV >> /dev/null 2>&1
         if [ $? -eq 0 ];then
-            echo -e "OK: result CSV path is writable to me."
+            echo -e "OK: result CSV path is writable to me."  | tee -a $LOG
             $BINARGS rm $CSV
         else
-            echo -e "\nABORTED! Path or file: >$CSV< is not writable for user: >${RUNUSER}<!\n"
+            echo -e "\nABORTED! Path or file: >$CSV< is not writable for user: >${RUNUSER}<!\n" | tee -a $LOG
             exit 3
         fi
     fi
-
 }

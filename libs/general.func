@@ -26,3 +26,9 @@ F_GETCPUS(){
 	echo $_MAX_THREADS
     fi
 }
+
+# logger func
+F_LOG(){
+    MSG="$1"
+    echo -e "$(date +%Y%m%d-%H%M%S) - $MSG" >> $LOG
+}

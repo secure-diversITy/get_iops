@@ -9,7 +9,6 @@ F_IOZONE(){
     [ "$CPUCOUNT" == "auto" ] && CPUCOUNT="$DETCPUCOUNT"
 
     # prep
-    OUT="$RESULTPATH/${TYPE}_${RUNID}.out"
     IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
     IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
     IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
@@ -20,6 +19,7 @@ F_IOZONE(){
     echo -e "\trecord sizes: ${RSIZES}"
     echo -e "\ttests: $TESTS"
     echo -e "\tresult: $CSV"
+    F_LOG "starting variables:\nstorage: $STORAGE\nfile size: ${BSIZE}\ntests: $TESTS\nrsizes: $RSIZES\nresult: $CSV\nout: $OUT\nxls: ${CSV}.xls"
 
     # iozone for splunk: http://docs.splunk.com/Documentation/PCI/2.1.1/Install/Troubleshooting#Measuring_system_performance
     # -I try to bypass caches (not available on all platforms)
@@ -34,6 +34,4 @@ F_IOZONE(){
     clear
     echo -e "\n\nSummary:\n"
     grep "Output is in ops/sec" -A25 ${OUT}
-    echo -e "\nFull output can be found here:\t${OUT}"
-    echo -e "XLS written to:\t\t\t${CSV}.xls"
 }

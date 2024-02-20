@@ -55,12 +55,12 @@ F_BONNIE(){
         # compare the free inodes of the filesystem with the one we about to use:
         INODESFREE=$(($FREEIN - $BONINODES))
         
-        echo -e "\tCurrently free inodes:\t$FREEIN"
-        echo -e "\t... we would use:\t$BONINODES"
-        echo -e "\t... leaving this free inodes:\t$INODESFREE"
+        echo -e "\tCurrently free inodes:\t$FREEIN" | tee -a $LOG
+        echo -e "\t... we would use:\t$BONINODES" | tee -a $LOG
+        echo -e "\t... leaving this free inodes:\t$INODESFREE" | tee -a $LOG
         
         if [ "$INODESFREE" -lt 10000 ];then
-            echo -e "\n\tABORTED! Not enough free inodes!\n"
+            echo -e "\n\tABORTED! Not enough free inodes!\n" | tee -a $LOG
             echo -e "\tIn order to not running into problem we abort here.\n"
             echo -e "\nRestart and choose less than $NFILES at 'Number of files getting written'"
             exit 3
@@ -73,13 +73,13 @@ F_BONNIE(){
     echo -e "\ttests: $TESTS"
     echo -e "\tnfiles: $NFILES"
     echo -e "\tndirs: $NDIRS"
-    echo -e "\tbsize: $BSIZE"
     echo -e "\tresult: $CSV"
+    F_LOG "starting variables:\nstorage: $STORAGE\nfile size: ${BSIZE}\ntests: $TESTS\nnfiles: $NFILES\nndirs: $NDIRS\nresult: $CSV\niops out: ${OUT}.iops"
 
     # as bonnie++ is not able to display IOPS directly many referring to "random seeks" here instead.
     # additionally we will do an "iostat" while bonnie++ is running which will show the IOPS during the
     # bonnie++ run
-    $IOSTATBIN $STORAGE 1 > ${CSV}.iops &
+    $IOSTATBIN $STORAGE 1 > ${OUT}.iops &
     IOSTATPID="$!"
 
     # -b no write buffering
@@ -88,10 +88,9 @@ F_BONNIE(){
     # then  every  file  will  have a random size from the range min..max inclusive.  If you specify a number of directories then the files will be
     # evenly distributed amoung that many sub-directories
     $BINARGS $BONBIN -u $RUNUSER -x $TESTS -d $STORAGE -s ${BSIZE}m -r ${RAM}m -b -n ${NFILES}:${BSIZE}:8:${NDIRS} >> $CSV
-    kill $IOSTATPID || echo "ERROR: can't stop '$IOSTATBIN' ($OSTATPID), please kill it manually"
+    kill $IOSTATPID || echo "ERROR: can't stop '$IOSTATBIN' ($IOSTATPID), please kill it manually"
     echo -e "\n\nSummary (Random Seeks is what you are interested in):\n"
     cat $CSV | bon_csv2txt
-    cat $CSV | bon_csv2html > ${CSV}.htm && echo -e "\nThe above has been saved also in human readable HTML here: ${CSV}.htm"
-    [ "$RUNUSER" != "root" -a $(id -u) -eq 0 ] && chown $RUNUSER ${CSV} ${CSV}.htm ${CSV}.iops
+    cat $CSV | bon_csv2html > ${CSV}.htm
+    [ "$RUNUSER" != "root" -a $(id -u) -eq 0 ] && chown $RUNUSER ${CSV} ${CSV}.htm ${OUT}.iops
 }
-

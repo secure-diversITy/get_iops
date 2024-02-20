@@ -191,4 +191,11 @@ case $CHOICE in
     ;;
 esac
 
-echo -e "\n$TYPE finished! You can find the result CSV here: $CSV\n\n"
+echo -e "\n$TYPE finished! You can find the result output here: \n"
+[ -f "$CSV" ] && echo -e "\tCSV:\t\t$CSV"
+[ -f "${CSV}.xls" ] && echo -e "\tXLS:\t\t${CSV}.xls"
+[ -f "${CSV}.htm" ] && echo -e "\tHTML:\t\t${CSV}.htm"
+echo -e "\tFull output:\t$OUT"
+echo -e "\tLog file:\t$LOG\n\n"
+F_LOG "$TYPE finished"
+F_LOG "#-------------------------------------------------------------------"
