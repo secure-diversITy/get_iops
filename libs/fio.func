@@ -7,13 +7,21 @@ F_FIO(){
     [ -z "$BLKSIZE" ] && BLKSIZE="$FIOBLKSIZEDEF"
     [ -z "$CPUCOUNT" ] && CPUCOUNT="$FIOJOBCNTDEF"
     [ "$CPUCOUNT" == "auto" ] && CPUCOUNT="$DETCPUCOUNT"
+    [ -z "$FIOIODEPTH" ] && FIOIODEPTH="$FIOIODEPTHDEF"
+    [ -z "$FIOREADPERC" ] && FIOREADPERC="$FIOREADPERCDEF"
+    [ -z "$FIOWRITEPERC" ] && FIOWRITEPERC="$FIOWRITEPERCDEF"
+    
 
     echo -e "\nstarting with:"
     echo -e "\tstorage: $STORAGE"
     echo -e "\tfile size: ${BSIZE}m"
     echo -e "\tblock size: $BLKSIZE"
     echo -e "\tnumber of jobs: $CPUCOUNT"
+    echo -e "\tread perc: $FIOREADPERC\n\twrite perc: $FIOWRITEPERC"
+    echo -e "\tiodepth: $FIOIODEPTH"
     echo -e "\tresult: $CSV"
+
+    F_LOG "starting variables:\nstorage: $STORAGE\nfile size: ${BSIZE}\ntests: $TESTS\nblock size: $BLKSIZE\nnumber of jobs: $CPUCOUNT\nread perc: $FIOREADPERC\nwrite perc: $FIOWRITEPERC\niodepth: $FIOIODEPTH\nresult: $CSV\nout: $OUT"
 
     # an unusual block size might be revealed by (PHY-SEC + LOG-SEC):
     # lsblk -o NAME,PHY-SEC,LOG-SEC,SIZE,RO,TYPE,MOUNTPOINTS
@@ -21,8 +29,20 @@ F_FIO(){
     #
     # rwmixread: Percentage of a mixed workload that should be read
     # rwmixwrite: Percentage of a mixed workload that should be written 
-    $BINARGS $FIOBIN --filename=${STORAGE}/${TYPE}.test --blocksize=$BLKSIZE --name=randrw --ioengine=libaio --iodepth=20 --rw=randrw --rwmixread=75 --rwmixwrite=25 --direct=1 --size=${BSIZE}M --numjobs=$CPUCOUNT --group_reporting --output $CSV
+    $BINARGS $FIOBIN --filename=${STORAGE}/${TYPE}.test \
+        --name=get_iops \
+        --ioengine=libaio \
+        --group_reporting \
+        --blocksize=$BLKSIZE \
+        --iodepth=$FIOIODEPTH \
+        --rw=randrw \
+        --rwmixread=$FIOREADPERC \
+        --rwmixwrite=$FIOWRITEPERC \
+        --direct=1 \
+        --size=${BSIZE}M \
+        --numjobs=$CPUCOUNT\
+        --output $OUT
 
     echo -e "\n\nSummary:"
-    grep IOPS $CSV 
+    grep IOPS $OUT | tee -a $LOG
 }

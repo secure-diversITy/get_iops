@@ -70,6 +70,10 @@ The following CLI parameters exist which will skip interactive questions:
     fio only:
 	--blocksize [X]		        define a non-default block size
         --cores [X|auto]                set the amount of cores
+        not available in interactive mode:
+        --readperc [X|default]          percentage of a mixed workload that should be read (+ writeperc must be 100)
+        --writeperc [X|default]         percentage of a mixed workload that should be written (+ readperc must be 100)
+        --iodepth [X|default]           "default" is highly recommended here
 
     iozone only:
 	--rsizes "[X|default]"	        the record sizes to use (must be quoted if not "default")
@@ -114,6 +118,9 @@ while [ ! -z "$1" ]; do
         --cores|--jobs) export CPUCOUNT="$2"; shift 2;;
         --nfiles) export NFILES="$2"; shift 2;;
         --ndirs) export NDIRS="$2"; shift 2;;
+        --readperc) export FIOREADPERC="$2"; shift 2;;
+        --writeperc) export FIOWRITEPERC="$2"; shift 2;;
+        --iodepth) export FIOIODEPTH="$2"; shift 2;;
         *) echo "unknown arg: $1"; F_USAGE; exit 4;;
     esac
 done

@@ -22,3 +22,6 @@ IOZTESTSDEF="0 1 2 3 4 5 6 7 8 9 10 11 12"      # tests to run (see help)
 FIORUNTIMEDEF=600                               # run time in seconds
 FIOJOBCNTDEF=auto                               # job count to use (auto will use all detected cores)
 FIOBLKSIZEDEF=4k                                # block size, usually 4k but depends on the hardware and/or how it was formatted
+FIOIODEPTHDEF=1                                 # iodepth, change this only if you know what you do
+FIOREADPERCDEF=25                               # Percentage of a mixed workload that should be read (+FIO_WRITEPERC must be 100)
+FIOWRITEPERCDEF=75                              # Percentage of a mixed workload that should be written (+FIO_READPERC must be 100)
