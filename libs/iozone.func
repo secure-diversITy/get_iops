@@ -19,17 +19,23 @@ F_IOZONE(){
     echo -e "\ttests: $TESTS"
     echo -e "\tresult: $CSV"
 
-    # -I try to bypass caches (not available on all platforms)
-    # -K Inject some random accesses in the testing
-    # -i tests to run
-    # -f path to test
-    # -s file size
-    # -r record sizes
+    # prep
     IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
     IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
     IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
-    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV > $CSVPATH/${TYPE}.out 2>&1
-    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls >> $CSVPATH/${TYPE}.out 2>&1 && echo -e "\nXLS written to: ${CSV}.xls"
-    echo -e "\n\nSummary (full output in $CSVPATH/${TYPE}.out):"
-    grep "Output is in ops/sec" -A25 $CSVPATH/${TYPE}.out 
+
+    # -I try to bypass caches (not available on all platforms)
+    # -K Inject some random accesses in the testing
+    # -i tests to run (see help)
+    # -f path to test
+    # -s file size
+    # -r record sizes
+    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV 2>&1 | tee -a $CSVPATH/${TYPE}.out
+    clear
+    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls 2>&1 | tee -a $CSVPATH/${TYPE}.out
+    clear
+    echo -e "\n\nSummary (full output in $CSVPATH/${TYPE}.out):\n"
+    grep "Output is in ops/sec" -A25 $CSVPATH/${TYPE}.out
+    echo -e "\nFull output can be found here:\t$CSVPATH/${TYPE}.out"
+    echo -e "XLS written to:\t\t\t${CSV}.xls"
 }
