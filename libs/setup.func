@@ -43,6 +43,7 @@ F_SETUP(){
         touch $STORAGE/${TYPE}.testfile >> /dev/null 2>&1
         if [ $? -eq 0 ];then
             echo -e "OK Storage exists and is writable to me."
+            rm $STORAGE/${TYPE}.testfile
         else
             echo -e "\nABORTED! Path: >$STORAGE< is not writable to me!\n"
             exit 3
