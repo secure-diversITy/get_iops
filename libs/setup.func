@@ -3,6 +3,7 @@ F_SETUP(){
     TYPE="$1"
 
     export CSV="$CSVPATH/${TYPE}.csv"
+    [ -f "$CSVPATH/${TYPE}.out" ] && $BINARGS rm $CSVPATH/${TYPE}.out
 
     clear
     echo -e "\nSetting up $TYPE:\n"
