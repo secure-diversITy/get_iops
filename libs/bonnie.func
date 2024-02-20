@@ -79,7 +79,7 @@ F_BONNIE(){
     # as bonnie++ is not able to display IOPS directly many referring to "random seeks" here instead.
     # additionally we will do an "iostat" while bonnie++ is running which will show the IOPS during the
     # bonnie++ run
-
+    [ -f "${CSV}.iops" ] && $BINARGS rm ${CSV}.iops
     $IOSTATBIN $STORAGE 1 > ${CSV}.iops &
     IOSTATPID="$!"
 
@@ -93,5 +93,6 @@ F_BONNIE(){
     echo -e "\n\nSummary (Random Seeks is what you are interested in):\n"
     cat $CSV | bon_csv2txt
     cat $CSV | bon_csv2html > ${CSV}.htm && echo -e "\nThe above has been saved also in human readable HTML here: ${CSV}.htm"
+    [ "$RUNUSER" != "root" -a $(id -u) -eq 0 ] && chown $RUNUSER ${CSV} ${CSV}.htm ${CSV}.iops
 }
 
