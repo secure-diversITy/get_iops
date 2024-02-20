@@ -53,6 +53,7 @@ The following CLI parameters exist which will skip interactive questions:
                                         ensure that this user has read+write access at your test path
                                         if you specify "root" as username it will proceed (on your own risk, of course)
 	-t | --type [1|2|3|4]		sets the type (1 = bonnie++, 2 = iozone, 3 = fio, 4 = ioping (I/O latency))
+                                        note: bonnie++ requires also iostat to be installed
 	-b | --batch		        will run in batch mode (avoid any output - Note: WIP)
 	--nodiskop			skip warning about to stop disk operations
 	--useram [X|auto]	        define a specific amount of RAM in MB (for cache calculations)
@@ -131,7 +132,12 @@ done
 
 # pre-check binaries
 case $CHOICE in
-    1) bin="$BONBIN" ;;
+    1) bin="$BONBIN"
+       if [ ! -x "$IOSTATBIN" ];then
+         echo -e "\nrunning bonnie++ requires iostat to determine IOPS, which seems to be not installed\n"
+         exit 3
+       fi 
+    ;;
     2) bin="$IZBIN" ;;
     3) bin="$FIOBIN";;
     4) echo coming soon; exit ;;

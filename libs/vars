@@ -4,6 +4,7 @@ BONBIN="/usr/sbin/bonnie++"	# full path to your bonnie++ installation
                                 # get your copy e.g. here: https://pkgs.org/download/bonnie++
 IZBIN="/usr/bin/iozone"         # full path to your iozone installation
 FIOBIN="/usr/bin/fio"           # full path to your fio install
+IOSTATBIN=/usr/bin/iostat       # full path to the iostat binary
 
 # global vars
 CSVPATH=/tmp                    # path where CSV results will be written to
