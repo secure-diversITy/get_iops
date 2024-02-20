@@ -13,7 +13,7 @@
 #
 #########################################################################################
 #
-VER=24.3
+VER=24.4
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
@@ -88,6 +88,7 @@ Additionally the following environment variables can be used to overwrite the de
     FIOBIN                              full path to your fio binary
     BONBIN                              full path to your bonnie++ binary
     IOSTATBIN                           full path to your iostat binary (required for bonnie++)
+    RESULTPATH                          full path where results should be stored
 
     simply export those before executing (e.g. export IZBIN=/usr/local/bin/iozone)
     or together with the running set (e.g. IZBIN=/usr/local/bin/iozone ./getiops.sh --type iozone ....)

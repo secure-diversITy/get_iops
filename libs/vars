@@ -6,7 +6,7 @@ FUNCS="$EPATH/libs"                                     # function directory of 
 [ -z "$IOSTATBIN" ] && IOSTATBIN="/usr/bin/iostat"      # full path to the iostat binary
 
 # global vars
-[ -z "$CVSPATH" ] && CSVPATH=/tmp                       # path where CSV results will be written to
+[ -z "$RESULTPATH" ] && RESULTPATH=/tmp                 # path where results will be written to
 
 # defaults - bonnie++
 BONTESTRUNSDEF=5                                        # test run amount

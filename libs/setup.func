@@ -1,9 +1,8 @@
 # ask generic stuff
 F_SETUP(){
     TYPE="$1"
-
-    export CSV="$CSVPATH/${TYPE}.csv"
-    [ -f "$CSVPATH/${TYPE}.out" ] && $BINARGS rm $CSVPATH/${TYPE}.out
+    export RUNID=$(date +%Y%m%d-%H%M%S)
+    export CSV="$RESULTPATH/${TYPE}_${RUNID}.csv"
 
     clear
     echo -e "\nSetting up $TYPE:\n"

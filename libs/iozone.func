@@ -1,9 +1,5 @@
 # doing the iozone stuff
 F_IOZONE(){
-    # iozone is mentioned at:
-    # http://docs.splunk.com/Documentation/PCI/2.1.1/Install/Troubleshooting#Measuring_system_performance
-    # cmd: iozone -s 4g -r 2k -r 4k -r 8k -r 16k -r 32k -O -b results.xls
-
     F_SETUP iozone
 
     # set defaults if required
@@ -12,6 +8,12 @@ F_IOZONE(){
     [ -z "$CPUCOUNT" ] && CPUCOUNT="$IOZCPUCNTDEF"
     [ "$CPUCOUNT" == "auto" ] && CPUCOUNT="$DETCPUCOUNT"
 
+    # prep
+    OUT="$RESULTPATH/${TYPE}_${RUNID}.out"
+    IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
+    IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
+    IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
+
     echo -e "\nstarting with:" 
     echo -e "\tstorage: $STORAGE"
     echo -e "\tfile size: ${BSIZE}m"
@@ -19,23 +21,19 @@ F_IOZONE(){
     echo -e "\ttests: $TESTS"
     echo -e "\tresult: $CSV"
 
-    # prep
-    IOZR=$(for r in $RSIZES;do echo "-r $r" ;done | tr '\n' ' ')
-    IOZT=$(for t in $TESTS;do echo "-i $t" ;done | tr '\n' ' ')
-    IOZC=$(while [ "$CPUCOUNT" -ne 0 ];do echo "-F $STORAGE/${TYPE}.test.${CPUCOUNT}"; CPUCOUNT=$((CPUCOUNT - 1)) ;done | tr '\n' ' ')
-
+    # iozone for splunk: http://docs.splunk.com/Documentation/PCI/2.1.1/Install/Troubleshooting#Measuring_system_performance
     # -I try to bypass caches (not available on all platforms)
     # -K Inject some random accesses in the testing
     # -i tests to run (see help)
     # -f path to test
     # -s file size
     # -r record sizes
-    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV 2>&1 | $BINARGS tee -a $CSVPATH/${TYPE}.out
+    $BINARGS $IZBIN -I -K $IOZT -f $STORAGE/${TYPE}.test -s ${BSIZE}m $IOZR -O -b $CSV 2>&1 | $BINARGS tee -a ${OUT}
     clear
-    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls 2>&1 | $BINARGS tee -a $CSVPATH/${TYPE}.out
+    $BINARGS $IZBIN -t1 -I -K $IOZT $IOZC -s ${BSIZE}m -O -b ${CSV}.xls 2>&1 | $BINARGS tee -a ${OUT}
     clear
-    echo -e "\n\nSummary (full output in $CSVPATH/${TYPE}.out):\n"
-    grep "Output is in ops/sec" -A25 $CSVPATH/${TYPE}.out
-    echo -e "\nFull output can be found here:\t$CSVPATH/${TYPE}.out"
+    echo -e "\n\nSummary:\n"
+    grep "Output is in ops/sec" -A25 ${OUT}
+    echo -e "\nFull output can be found here:\t${OUT}"
     echo -e "XLS written to:\t\t\t${CSV}.xls"
 }

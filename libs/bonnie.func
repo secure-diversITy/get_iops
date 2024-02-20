@@ -79,7 +79,6 @@ F_BONNIE(){
     # as bonnie++ is not able to display IOPS directly many referring to "random seeks" here instead.
     # additionally we will do an "iostat" while bonnie++ is running which will show the IOPS during the
     # bonnie++ run
-    [ -f "${CSV}.iops" ] && $BINARGS rm ${CSV}.iops
     $IOSTATBIN $STORAGE 1 > ${CSV}.iops &
     IOSTATPID="$!"
 
