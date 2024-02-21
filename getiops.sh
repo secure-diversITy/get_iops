@@ -13,7 +13,7 @@
 #
 #########################################################################################
 #
-VER=2.4.8
+VER=2.4.9
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
@@ -198,6 +198,8 @@ case $CHOICE in
         F_IOPING 0
     ;;
 esac
+
+$BINARGS rm ${STORAGE}/${TYPE}.test*
 
 echo -e "\n$TYPE finished! You can find the result output here: \n"
 [ -f "$CSV" ] && echo -e "\tCSV:\t\t$CSV"
