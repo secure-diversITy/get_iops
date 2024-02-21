@@ -13,12 +13,14 @@
 #
 #########################################################################################
 #
-VER=2.4.7
+VER=2.4.8
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
 VARFILE=libs/vars
 DEBUG=0
+TOOLARGS="$@"
+
 
 [ ! -f $VARFILE ] && echo "ERROR: missing variable file <$VARFILE>" && exit
 source $VARFILE
