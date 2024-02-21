@@ -13,14 +13,13 @@
 #
 #########################################################################################
 #
-VER=2.4.9
+VER=2.5.0
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
 VARFILE=libs/vars
 DEBUG=0
 TOOLARGS="$@"
-
 
 [ ! -f $VARFILE ] && echo "ERROR: missing variable file <$VARFILE>" && exit
 source $VARFILE
@@ -60,7 +59,7 @@ The following CLI parameters exist which will skip interactive questions:
 	-b | --batch		        will run in batch mode (avoid any output - Note: WIP)
 	--nodiskop			skip warning about to stop disk operations
 	--useram [X|auto]	        define a specific amount of RAM in MB (for cache calculations)
-	--size [X]		        define test file size in MB (will be multiplied with 3)
+	--size [X|auto]		        define test file size in MB (when "auto": Total RAM * 2)
 	--path [path/mountpoint]	set the path to the storage you want to test
 
     bonnie++ only:
@@ -116,7 +115,8 @@ while [ ! -z "$1" ]; do
         -a|--batch) BATCH=1; shift ;;
         --nowarn) export SKIPWARN=y; shift ;;
         --nodiskop) export IOPROC=y; shift ;;
-        --useram|--size) export RAM="$2"; shift 2;;
+        --useram) export RAM="$2"; shift 2;;
+        --size) export TSIZE="$2"; shift 2;;
         --path) export STORAGE="$2"; shift 2;;
         --tests) export TESTS="$2"; shift 2;;
         --rsizes) export RSIZES="$2"; shift 2;;

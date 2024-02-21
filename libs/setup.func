@@ -36,8 +36,12 @@ F_SETUP(){
         [ -z "$CPUCOUNT" ] && read -p "How many Jobs do you want to use (leave empty for default: '$FIOJOBCNTDEF') > " CPUCOUNT
     fi
 
-    BSIZE=$(($RAM * 3))
-    [ "x$BATCH" == "x0" ]&&echo -e "\n\tCalculated file size is: $BSIZE MB ($RAM * 3 to trick cache)"
+    if [ "$TSIZE" == "auto" ];then
+        BSIZE=$(($RAM * 2))
+        [ "x$BATCH" == "x0" ]&&echo -e "\n\tCalculated file size is: $BSIZE MB ($RAM * 2 to trick cache)"
+    else
+        BSIZE="$TSIZE"
+    fi
     [ "x$BATCH" == "x0" ]&&echo -e "\tTake a cup of coffee - or two. This will take a while!!!\n\n"
     
     # test write access before we start

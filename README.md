@@ -53,7 +53,7 @@ The following CLI parameters exist which will skip interactive questions:
 	-b | --batch		       will run in batch mode (avoid any output - Note: WIP)
 	--nodiskop			skip warning about to stop disk operations
 	--useram [X|auto]	       define a specific amount of RAM in MB (for cache calculations)
-	--size [X]		       define test file size in MB (will be multiplied with 3)
+	--size [X|auto]		       define test file size in MB (when "auto": Total RAM * 2)
 	--path [path/mountpoint]	set the path to the storage you want to test
 
     bonnie++ only:
@@ -65,6 +65,14 @@ The following CLI parameters exist which will skip interactive questions:
     fio only:
 	--blocksize [X]		       define a non-default block size
         --cores [X|auto]                set the amount of cores
+        not available in interactive mode:
+        --readperc [X|default]          percentage of a mixed workload that should be read (+ writeperc must be 100)
+        --writeperc [X|default]         percentage of a mixed workload that should be written (+ readperc must be 100)
+        --iodepth [X|default]           "default" is highly recommended here
+        --runtime [X]h|m|s              the maximal runtime (might complete before). if unit is omitted seconds will be assumed.
+        --loop                          requires --runtime to be set!
+                                        will run for the duration of the --runtime specified even if the file(s) are completely
+                                        read or written. It will loop over the same workload as many times as the runtime allows.
 
     iozone only:
 	--rsizes "[X|default]"	       the record sizes to use (must be quoted if not "default")
