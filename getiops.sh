@@ -13,7 +13,7 @@
 #
 #########################################################################################
 #
-VER=24.6
+VER=2.4.7
 #
 #########################################################################################
 EPATH=$(dirname $0)         # detect path we're running in
@@ -74,6 +74,10 @@ The following CLI parameters exist which will skip interactive questions:
         --readperc [X|default]          percentage of a mixed workload that should be read (+ writeperc must be 100)
         --writeperc [X|default]         percentage of a mixed workload that should be written (+ readperc must be 100)
         --iodepth [X|default]           "default" is highly recommended here
+        --runtime [X]h|m|s              the maximal runtime (might complete before). if unit is omitted seconds will be assumed.
+        --loop                          requires --runtime to be set!
+                                        will run for the duration of the --runtime specified even if the file(s) are completely
+                                        read or written. It will loop over the same workload as many times as the runtime allows.
 
     iozone only:
 	--rsizes "[X|default]"	        the record sizes to use (must be quoted if not "default")
@@ -121,6 +125,8 @@ while [ ! -z "$1" ]; do
         --readperc) export FIOREADPERC="$2"; shift 2;;
         --writeperc) export FIOWRITEPERC="$2"; shift 2;;
         --iodepth) export FIOIODEPTH="$2"; shift 2;;
+        --runtime) export FIOMAXRUNTIME="$2"; shift 2;;
+        --loop) export FIOLOOP="y"; shift;;
         *) echo "unknown arg: $1"; F_USAGE; exit 4;;
     esac
 done

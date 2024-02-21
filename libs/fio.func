@@ -10,7 +10,8 @@ F_FIO(){
     [ -z "$FIOIODEPTH" ] && FIOIODEPTH="$FIOIODEPTHDEF"
     [ -z "$FIOREADPERC" ] && FIOREADPERC="$FIOREADPERCDEF"
     [ -z "$FIOWRITEPERC" ] && FIOWRITEPERC="$FIOWRITEPERCDEF"
-    
+    [ ! -z "$FIOMAXRUNTIME" ] && FIOMAXRUNTIME="--runtime=$FIOMAXRUNTIME"
+    [ "$FIOLOOP" == "y" ] && FIOADDLOOP="--time_based"
 
     echo -e "\nstarting with:"
     echo -e "\tstorage: $STORAGE"
@@ -22,6 +23,8 @@ F_FIO(){
     echo -e "\tresult: $CSV"
 
     F_LOG "starting variables:\nstorage: $STORAGE\nfile size: ${BSIZE}\ntests: $TESTS\nblock size: $BLKSIZE\nnumber of jobs: $CPUCOUNT\nread perc: $FIOREADPERC\nwrite perc: $FIOWRITEPERC\niodepth: $FIOIODEPTH\nresult: $CSV\nout: $OUT"
+    F_LOG "FIOMAXRUNTIME: $FIOMAXRUNTIME"
+    F_LOG "FIOLOOP: $FIOLOOP"
 
     # an unusual block size might be revealed by (PHY-SEC + LOG-SEC):
     # lsblk -o NAME,PHY-SEC,LOG-SEC,SIZE,RO,TYPE,MOUNTPOINTS
@@ -40,8 +43,10 @@ F_FIO(){
         --rwmixwrite=$FIOWRITEPERC \
         --direct=1 \
         --size=${BSIZE}M \
-        --numjobs=$CPUCOUNT\
-        --output $OUT
+        --numjobs=$CPUCOUNT \
+        --output $OUT \
+        $FIOMAXRUNTIME \
+        $FIOADDLOOP
 
     echo -e "\n\nSummary:"
     grep IOPS $OUT | tee -a $LOG
