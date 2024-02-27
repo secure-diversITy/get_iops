@@ -20,6 +20,23 @@ Although this is provided without warranty of any kind (and you use it at your o
 
 - ioping (latency)
 
+## Links
+
+### general
+
+- [fio params](https://s905060.gitbooks.io/site-reliability-engineer-handbook/content/fio.html)
+- [fio iodepth](https://unix.stackexchange.com/questions/459045/what-exactly-is-iodepth-in-fio)
+- [xfs blocksize](https://serverfault.com/questions/1114840/xfs-difference-between-block-size-and-sector-size)
+- [iozone examples](https://www.thegeekstuff.com/2011/05/iozone-examples/)
+
+### splunk
+
+- [Reference Hardware](https://docs.splunk.com/Documentation/Splunk/latest/Capacity/Referencehardware#Reference_hardware)
+- [Calculating IOPS using FIO](https://community.splunk.com/t5/Monitoring-Splunk/Calculating-IOPS-using-FIO-testing/m-p/455055)
+- [FIO across multiple nodes simultaneously](https://community.splunk.com/t5/Installation/How-do-I-test-my-storage-system-using-FIO-across-multiple-nix/m-p/520676)
+- [Nutanix benchmarking](http://www.valence.co.kr/images/rk-0068/Splunk1.pdf)
+- [bonnie++ info](https://community.splunk.com/t5/Monitoring-Splunk/Testing-Splunk-systems-with-IOzone-how-to-interpret-results/m-p/67901)
+
 ## Installation / Usage
 
 ~~~
